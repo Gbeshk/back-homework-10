@@ -12,6 +12,7 @@ const app = express();
 app.use(express.json());
 app.use("/expenses", expensesRouter);
 app.use("/random-fact", randomRouter);
+app.use(express.static("uploads"));
 
 app.listen(4000, () => {
   console.log("server running on http://localhost:4000");
