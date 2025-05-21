@@ -65,9 +65,9 @@ const deleteExpense = async (req, res) => {
 };
 
 const updateExpense = async (req, res) => {
-  if (!req.body.title && !req.body.price) {
-    return res.status(400).json({ error: "title or price are required" });
-  }
+  // if (!req.body.title && !req.body.price) {
+  //   return res.status(400).json({ error: "title or price are required" });
+  // }
   const id = Number(req.params.id);
   const expenses = await readFile("expenses.json", true);
   const index = expenses.findIndex((el) => el.id === id);
@@ -81,11 +81,14 @@ const updateExpense = async (req, res) => {
     const publicFileId = `uploads/${fileId}`;
     await deleteFromCloudinary(publicFileId);
   }
+  const updateReq = {};
+  if (req.body.title) updateReq.title = req.body.title;
+  if (req.body.price) updateReq.price = req.body.price;
+
+
   expenses[index] = {
     ...expenses[index],
-    title: req.body?.title,
-    price: req.body?.price,
-    image_url: req.file?.path,
+    ...updateReq,
   };
   await writeFile("expenses.json", JSON.stringify(expenses));
   res
