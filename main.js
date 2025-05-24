@@ -7,12 +7,26 @@
 const express = require("express");
 const expensesRouter = require("./routes/expenses/expenses.route");
 const randomRouter = require("./routes/random-fact/random-fact.route");
+const { readFile } = require("./utils");
 
 const app = express();
 app.use(express.json());
-app.use("/expenses", expensesRouter);
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static("public"));
+
+app.use("/api/expenses", expensesRouter);
 app.use("/random-fact", randomRouter);
 app.use(express.static("uploads"));
+app.set("view engine", "ejs");
+
+app.get("/", async (req, res) => {
+  const expenses = await readFile("expenses.json", true);
+  res.render("pages/home.ejs", { expenses });
+});
+
+app.get("/create", (req, res) => {
+  res.render("pages/create.ejs");
+});
 
 app.listen(4000, () => {
   console.log("server running on http://localhost:4000");

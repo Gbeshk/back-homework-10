@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Details</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <%- include('../partials/header') %>
+
+    <h1>Details Page</h1>
+    <div class="card" id="detailsCard">
+      <h1>Id: <%= expense.id %></h1>
+      <h1>Title: <%= expense.title %></h1>
+      <h1>Price: <%= expense.price %></h1>
+      <img class="img" src="<%= expense.image_url %>" alt="Expense Image" />
+    </div>
+    <a class="goBack" href="/">Back</a>
+  </body>
+</html>

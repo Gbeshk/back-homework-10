@@ -6,12 +6,17 @@ const {
   addExpense,
   deleteExpense,
   updateExpense,
+  getDetails,
 } = require("./expenses.service");
 const hasKeyMiddleware = require("../../middlewares/hasKey.middleware");
 const allKeysMiddleware = require("../../middlewares/allKeys.middleware");
 const expensesRouter = Router();
 const multer = require("multer");
-const { upload } = require("../../config/claudinary.config");
+const {
+  upload,
+  deleteFromCloudinary,
+} = require("../../config/claudinary.config");
+const { readFile, writeFile } = require("../../utils");
 
 // const storage = multer.diskStorage({
 //   destination: (req, file, cb) => {
@@ -33,21 +38,56 @@ expensesRouter.get("/", getAllExpenses);
 expensesRouter.post(
   "/",
   upload.single("images"),
-  allKeysMiddleware,
+  // allKeysMiddleware,
   addExpense
 );
-expensesRouter.delete("/:id", hasKeyMiddleware, deleteExpense);
-expensesRouter.put(
-  "/:id",
+expensesRouter.post(
+  "/:id/delete",
+  //  hasKeyMiddleware,
+  deleteExpense
+);
+expensesRouter.get("/:id/details", getDetails);
+
+expensesRouter.post(
+  "/:id/update",
   upload.single("images"),
-  updateExpense
+  async (req, res) => {
+    const id = Number(req.params.id);
+    const { title, price } = req.body;
+    const expenses = await readFile("expenses.json", true);
+    const index = expenses.findIndex((el) => el.id === id);
+    if (index === -1) return res.status(400).send("user not found");
+
+    if (req.file?.path && expenses[index].image_url) {
+      const fileName = expenses[index].image_url.split("uploads/")[1];
+      const fileId = fileName.split(".")[0];
+      const publicFileId = `uploads/${fileId}`;
+      await deleteFromCloudinary(publicFileId);
+    }
+    const updateReq = {};
+    if (title) updateReq.title = title;
+    if (price) updateReq.price = price;
+    if (req.file?.path) updateReq.image_url = req.file.path;
+    expenses[index] = {
+      ...expenses[index],
+      ...updateReq,
+    };
+    await writeFile("expenses.json", JSON.stringify(expenses));
+
+    res.redirect("/");
+  }
 );
 
+expensesRouter.get("/:id/update", async (req, res) => {
+  const id = Number(req.params.id);
+  const expenses = await readFile("expenses.json", true);
+
+  const expense = expenses.find((el) => el.id === id);
+  if (!expense) return res.status(400).send("expense not found");
+
+  res.render("pages/update.ejs", { expense });
+});
+
+expensesRouter.put("/:id", upload.single("images"), updateExpense);
+
 module.exports = expensesRouter;
-
-// Add following functionality to prev task 11.
-
-// 1) add image upload using multer and cloudinary
-// 2) add validation to upload max 3 mb of image
-// 3) when you edit image each expense you should delete prev image from cloudinary
-// 4) when you delete expense you also should delete this image from clodinary.

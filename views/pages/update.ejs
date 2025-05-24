@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Update</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <%- include('../partials/header') %>
+
+    <form
+      action="/api/expenses/<%= expense.id %>/update"
+      method="post"
+      enctype="multipart/form-data"
+    >
+      <input type="text" name="title" value="<%= expense.title %>" />
+      <input type="text" name="price" value="<%= expense.price %>" />
+      <input type="file" name="images" accept="image/*" required />
+
+      <button>Update</button>
+    </form>
+    <a class="goBack" href="/">Back</a>
+  </body>
+</html>

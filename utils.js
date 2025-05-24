@@ -9,7 +9,7 @@ const readFile = async (filepath, parse) => {
 const writeFile = async (filepath, data) => {
   if (!filepath) return;
   await fs.writeFile(filepath, data);
-  console.log("writed succesfully");
+  // console.log("writed succesfully");
 };
 
 module.exports = { writeFile, readFile };
